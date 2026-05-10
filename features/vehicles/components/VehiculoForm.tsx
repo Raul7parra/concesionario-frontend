@@ -3,13 +3,20 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { VehicleInput } from "../types";
-import {createVehicle} from "@/features/vehicles/hooks/useVehicle";
+import {createVehicle, updateVehicle} from "@/features/vehicles/hooks/useVehicle";
 
-export function VehicleForm({ onSuccessAction }: { onSuccessAction?: () => void }) {
+interface VehicleFormProps {
+    onSuccessAction?: () => void;
+    initialData?: VehicleInput;
+    vehicleId?: string;
+}
+
+export function VehicleForm({ onSuccessAction, initialData, vehicleId }: VehicleFormProps) {
     const router = useRouter();
 
     const [loading, setLoading] = useState(false);
-    const [formData, setFormData] = useState<VehicleInput>({
+
+    const [formData, setFormData] = useState<VehicleInput>(initialData || {
         marca: "",
         modelo: "",
         anio: new Date().getFullYear(),
@@ -25,14 +32,19 @@ export function VehicleForm({ onSuccessAction }: { onSuccessAction?: () => void 
         e.preventDefault();
         setLoading(true);
         try {
-            await createVehicle(formData);
+            if (vehicleId) {
+                await updateVehicle(vehicleId, formData);
+            } else {
+                await createVehicle(formData);
+            }
+
             router.refresh();
 
             if (onSuccessAction) {
                 onSuccessAction();
             }
         } catch (error) {
-            console.error("Error al crear el vehículo:", error);
+            console.error("Error al guardar el vehículo:", error);
             alert("Hubo un error al guardar");
         } finally {
             setLoading(false);
@@ -50,61 +62,97 @@ export function VehicleForm({ onSuccessAction }: { onSuccessAction?: () => void 
     };
 
     return (
-        <form onSubmit={handleSubmit} className="bg-white p-6 rounded-xl shadow-sm border max-w-2xl mx-auto">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <form onSubmit={handleSubmit} className="w-full flex flex-col h-full">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 flex-grow">
 
-                {/* Tipo */}
-                <div className="col-span-1 md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700">Tipo de Vehículo</label>
-                    <select name="tipo" value={formData.tipo} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border">
-                        <option value="COCHE">Coche</option>
-                        <option value="MOTO">Moto</option>
-                    </select>
+                {/* Tipo y Estado (En la misma fila para ahorrar espacio vertical) */}
+                <div className="grid grid-cols-2 gap-5 col-span-1 md:col-span-2">
+                    <div>
+                        <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Tipo</label>
+                        <select
+                            name="tipo"
+                            value={formData.tipo}
+                            onChange={handleChange}
+                            disabled={!!vehicleId}
+                            className="w-full bg-slate-50 border border-slate-200 text-slate-900 rounded-xl px-4 py-3 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-bold appearance-none disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            <option value="COCHE">🚗 Coche</option>
+                            <option value="MOTO">🏍️ Moto</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Estado</label>
+                        <select
+                            name="estado"
+                            value={formData.estado}
+                            onChange={handleChange}
+                            className="w-full bg-slate-50 border border-slate-200 text-slate-900 rounded-xl px-4 py-3 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-bold appearance-none"
+                        >
+                            <option value="NUEVO">✨ Nuevo</option>
+                            <option value="OCASION">🔄 Ocasión</option>
+                        </select>
+                    </div>
                 </div>
 
                 {/* Marca y Modelo */}
                 <div>
-                    <label className="block text-sm font-medium text-gray-700">Marca</label>
-                    <input required type="text" name="marca" value={formData.marca} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border" />
+                    <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Marca</label>
+                    <input required type="text" name="marca" value={formData.marca} onChange={handleChange} placeholder="Ej. Toyota"
+                           className="w-full bg-slate-50 border border-slate-200 text-slate-900 rounded-xl px-4 py-3 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-medium placeholder:text-slate-300" />
                 </div>
                 <div>
-                    <label className="block text-sm font-medium text-gray-700">Modelo</label>
-                    <input required type="text" name="modelo" value={formData.modelo} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border" />
+                    <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Modelo</label>
+                    <input required type="text" name="modelo" value={formData.modelo} onChange={handleChange} placeholder="Ej. Corolla"
+                           className="w-full bg-slate-50 border border-slate-200 text-slate-900 rounded-xl px-4 py-3 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-medium placeholder:text-slate-300" />
                 </div>
 
                 {/* Año y Precio */}
                 <div>
-                    <label className="block text-sm font-medium text-gray-700">Año</label>
-                    <input required type="number" name="anio" value={formData.anio} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border" />
+                    <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Año</label>
+                    <input required type="number" name="anio" value={formData.anio} onChange={handleChange}
+                           className="w-full bg-slate-50 border border-slate-200 text-slate-900 rounded-xl px-4 py-3 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-medium" />
                 </div>
                 <div>
-                    <label className="block text-sm font-medium text-gray-700">Precio (€)</label>
-                    <input required type="number" step="0.01" name="precio" value={formData.precio} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border" />
+                    <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Precio (€)</label>
+                    <div className="relative">
+                        <input required type="number" step="0.01" name="precio" value={formData.precio} onChange={handleChange}
+                               className="w-full bg-slate-50 border border-slate-200 text-slate-900 rounded-xl pl-4 pr-10 py-3 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-black text-lg" />
+                        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">€</span>
+                    </div>
                 </div>
 
-                {/* campos segun el tipo */}
-                {formData.tipo === "COCHE" ? (
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700">Número de Puertas</label>
-                        <input required type="number" name="numeroPuertas" value={formData.numeroPuertas} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border" />
-                    </div>
-                ) : (
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700">Cilindrada (cc)</label>
-                        <input required type="number" name="cilindrada" value={formData.cilindrada} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border" />
-                    </div>
-                )}
+                {/* Campos específicos e Imagen */}
+                <div>
+                    {formData.tipo === "COCHE" ? (
+                        <>
+                            <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Puertas</label>
+                            <input required type="number" name="numeroPuertas" value={formData.numeroPuertas || ''} onChange={handleChange}
+                                   className="w-full bg-slate-50 border border-slate-200 text-slate-900 rounded-xl px-4 py-3 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-medium" />
+                        </>
+                    ) : (
+                        <>
+                            <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Cilindrada (CC)</label>
+                            <input required type="number" name="cilindrada" value={formData.cilindrada || ''} onChange={handleChange}
+                                   className="w-full bg-slate-50 border border-slate-200 text-slate-900 rounded-xl px-4 py-3 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-medium" />
+                        </>
+                    )}
+                </div>
 
-                {/* Imagen */}
-                <div className="col-span-1 md:col-span-2 mt-2">
-                    <label className="block text-sm font-medium text-gray-700">URL de la Imagen</label>
-                    <input type="url" name="imagenUrl" value={formData.imagenUrl} onChange={handleChange} placeholder="https://ejemplo.com/foto.jpg" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border" />
+                <div>
+                    <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">URL Imagen</label>
+                    <input type="url" name="imagenUrl" value={formData.imagenUrl} onChange={handleChange} placeholder="https://..."
+                           className="w-full bg-slate-50 border border-slate-200 text-slate-900 rounded-xl px-4 py-3 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-medium placeholder:text-slate-300" />
                 </div>
             </div>
 
-            <div className="mt-8 flex justify-end">
-                <button type="submit" disabled={loading} className="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50">
-                    {loading ? "Guardando..." : "Guardar Vehículo"}
+            {/* Botón de Acción */}
+            <div className="mt-8 pt-6 border-t border-slate-100 flex justify-end">
+                <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full md:w-auto bg-slate-900 text-white px-8 py-4 rounded-xl font-bold tracking-wide hover:bg-blue-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-slate-200"
+                >
+                    {loading ? "Guardando..." : vehicleId ? "Actualizar Vehículo" : "Guardar Vehículo"}
                 </button>
             </div>
         </form>

@@ -9,7 +9,15 @@ async function fetchGraphQL(query: string, variables = {}) {
         body: JSON.stringify({ query, variables }),
         cache: 'no-store'
     });
-    return await res.json();
+
+    const json = await res.json();
+
+    if (json.errors) {
+        console.error("❌ Error de GraphQL devuelto por Spring Boot:", json.errors);
+        throw new Error(json.errors[0].message);
+    }
+
+    return json;
 }
 
 export async function getVehicles(): Promise<Vehicle[]> {
@@ -23,6 +31,9 @@ export async function getVehicles(): Promise<Vehicle[]> {
                 precio
                 estado
                 imagenUrl
+                tipo          
+                numeroPuertas  
+                cilindrada     
             }
         }
     `;
@@ -52,4 +63,16 @@ export async function deleteVehicle(id: string): Promise<boolean> {
     `;
     const json = await fetchGraphQL(query, { id });
     return !!json.data?.eliminarVehiculo;
+}
+
+export async function updateVehicle(id: string, vehicle: VehicleInput): Promise<any> {
+    const query = `
+        mutation($id: ID!, $input: VehiculoInput!) {
+            actualizarVehiculo(id: $id, input: $input) {
+                id
+            }
+        }
+    `;
+    const json = await fetchGraphQL(query, { id, input: vehicle });
+    return json.data?.actualizarVehiculo;
 }
