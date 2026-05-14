@@ -1,72 +1,82 @@
-"use client";
+'use client';
 
-import React, { createContext, useContext, useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-
-interface User {
-    email: string;
-    role: "ADMIN" | "USER";
-}
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 interface AuthContextType {
-    user: User | null;
-    login: (email: string, pass: string) => Promise<{ success: boolean; error?: string }>;
+    isAuthenticated: boolean;
+    token: string | null;
+    login: (username: string, password: string) => Promise<boolean>;
     logout: () => void;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AuthContext = createContext<AuthContextType>({} as AuthContextType);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-    const [user, setUser] = useState<User | null>(null);
+    const [token, setToken] = useState<string | null>(null);
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
     const router = useRouter();
 
     useEffect(() => {
-        const checkSession = () => {
-            const storedUser = localStorage.getItem("admin_session");
-            if (storedUser) {
-                setUser(JSON.parse(storedUser));
-            }
-        };
-        checkSession();
+        const savedToken = localStorage.getItem('jwt_token');
+        if (savedToken) {
+            Promise.resolve().then(() => {
+                setToken(savedToken);
+                setIsAuthenticated(true);
+            });
+        }
     }, []);
 
-    const login = async (email: string, pass: string) => {
-        await new Promise(resolve => setTimeout(resolve, 800));
+    const login = async (username: string, password: string) => {
+        try {
+            const query = `
+                mutation {
+                    login(username: "${username}", password: "${password}")
+                }
+            `;
+            const response = await fetch('http://localhost:8080/graphql', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ query })
+            });
 
-        if (email === "admin@autopremium.com" && pass === "admin123") {
-            const loggedUser: User = { email, role: "ADMIN" };
-            setUser(loggedUser);
+            const { data, errors } = await response.json();
 
-            localStorage.setItem("admin_session", JSON.stringify(loggedUser));
+            if (errors || !data?.login) {
+                console.error("Error en login:", errors);
+                return false;
+            }
 
-            document.cookie = "admin_token=acceso_concedido; path=/; max-age=86400";
+            const jwt = data.login;
+            setToken(jwt);
+            setIsAuthenticated(true);
 
-            router.push("/admin/dashboard");
-            return { success: true };
+            localStorage.setItem('jwt_token', jwt);
+            document.cookie = `token=${jwt}; path=/; max-age=86400`; // 24 horas
+
+            router.push('/admin/dashboard');
+            return true;
+        } catch (error) {
+            console.error("Error de red durante el login", error);
+            return false;
         }
-
-        return { success: false, error: "Credenciales incorrectas" };
     };
 
     const logout = () => {
-        setUser(null);
-        localStorage.removeItem("admin_session");
-        document.cookie = "admin_token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT"; // Destruimos la cookie
+        setToken(null);
+        setIsAuthenticated(false);
+        localStorage.removeItem('jwt_token');
+        document.cookie = 'token=; path=/; max-age=0';
 
-        router.push("/admin/login");
+        window.location.href = '/login';
     };
 
+
     return (
-        <AuthContext.Provider value={{ user, login, logout }}>
+        <AuthContext.Provider value={{ isAuthenticated, token, login, logout }}>
             {children}
         </AuthContext.Provider>
     );
 }
 
-export function useAuth() {
-    const context = useContext(AuthContext);
-    if (!context) {
-        throw new Error("useAuth debe usarse dentro de un AuthProvider");
-    }
-    return context;
-}
+export const useAuth = () => useContext(AuthContext);

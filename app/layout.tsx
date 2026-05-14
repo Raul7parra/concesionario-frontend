@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import {AuthProvider} from "@/context/AuthContext";
+import { AuthProvider } from "@/context/AuthContext";
+import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
     title: "Concesionario App",
@@ -13,6 +14,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <body>
         <AuthProvider>
             {children}
+            <Toaster position="top-right" richColors closeButton />
         </AuthProvider>
         </body>
         </html>

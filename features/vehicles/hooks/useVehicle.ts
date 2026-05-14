@@ -2,10 +2,18 @@ import { Vehicle, VehicleInput } from "../types";
 
 const GRAPHQL_URL = "http://localhost:8080/graphql";
 
+function getHeaders() {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('jwt_token') : null;
+    return {
+        "Content-Type": "application/json",
+        ...(token ? { "Authorization": `Bearer ${token}` } : {})
+    };
+}
+
 async function fetchGraphQL(query: string, variables = {}) {
     const res = await fetch(GRAPHQL_URL, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: getHeaders(),
         body: JSON.stringify({ query, variables }),
         cache: 'no-store'
     });
