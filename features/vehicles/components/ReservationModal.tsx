@@ -24,13 +24,13 @@ export function ReservationModal({ isOpen, onClose, vehicle }: ReservationModalP
         setLoading(true);
         try {
             const query = `
-                mutation($input: SaleInput!) {
-                    registerSale(input: $input) {
-                        id
-                        status
-                    }
+            mutation($input: SaleInput!) {
+                registerSale(input: $input) {
+                    id
+                    status
                 }
-            `;
+            }
+        `;
             const variables = {
                 input: {
                     client: clientName,

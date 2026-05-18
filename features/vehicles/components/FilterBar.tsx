@@ -3,17 +3,15 @@
 interface FilterBarProps {
     busqueda: string;
     setBusqueda: (valor: string) => void;
-    filtroTipo: "TODOS" | "COCHE" | "MOTO";
-    setFiltroTipo: (tipo: "TODOS" | "COCHE" | "MOTO") => void;
     precioMax: number;
     setPrecioMax: (precio: number) => void;
 }
 
-export function FilterBar({busqueda, setBusqueda, filtroTipo, setFiltroTipo, precioMax, setPrecioMax}: FilterBarProps) {
+export function FilterBar({busqueda, setBusqueda, precioMax, setPrecioMax}: FilterBarProps) {
     return (
-        <div className="bg-white p-5 rounded-[2.5rem] shadow-2xl border border-gray-100 space-y-5 max-w-5xl mx-auto sticky top-6 z-40 backdrop-blur-md bg-white/90">
+        <div className="bg-white p-5 rounded-[2.5rem] shadow-2xl border border-gray-100 space-y-5 max-w-5xl mx-auto">
             <div className="flex flex-col lg:flex-row gap-4 items-center">
-                <div className="relative w-full flex-grow">
+                <div className="relative w-full">
                     <div className="absolute inset-y-0 left-6 flex items-center pointer-events-none text-blue-500">
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
@@ -26,22 +24,6 @@ export function FilterBar({busqueda, setBusqueda, filtroTipo, setFiltroTipo, pre
                         onChange={(e) => setBusqueda(e.target.value)}
                         className="w-full pl-16 pr-6 py-4 bg-slate-50 border-transparent rounded-2xl focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all text-slate-900 font-bold outline-none"
                     />
-                </div>
-
-                <div className="flex bg-slate-100 p-1.5 rounded-2xl w-full lg:w-auto shrink-0">
-                    {(["TODOS", "COCHE", "MOTO"] as const).map((tipo) => (
-                        <button
-                            key={tipo}
-                            onClick={() => setFiltroTipo(tipo)}
-                            className={`flex-1 lg:flex-none px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-500 ${
-                                filtroTipo === tipo
-                                    ? "bg-white text-blue-600 shadow-xl ring-1 ring-black/5"
-                                    : "text-slate-400 hover:text-slate-600"
-                            }`}
-                        >
-                            {tipo === "TODOS" ? "Todo" : tipo === "COCHE" ? "Coches" : "Motos"}
-                        </button>
-                    ))}
                 </div>
             </div>
 
@@ -64,7 +46,10 @@ export function FilterBar({busqueda, setBusqueda, filtroTipo, setFiltroTipo, pre
                     </div>
                 </div>
                 <button
-                    onClick={() => {setBusqueda(""); setFiltroTipo("TODOS"); setPrecioMax(150000);}}
+                    onClick={() => {
+                        setBusqueda("");
+                        setPrecioMax(150000);
+                    }}
                     className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em] hover:text-rose-500 transition-colors"
                 >
                     Limpiar filtros

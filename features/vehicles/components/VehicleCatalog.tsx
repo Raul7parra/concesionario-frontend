@@ -5,29 +5,34 @@ import { Vehicle } from "../types";
 import { FilterBar } from "./FilterBar";
 import { VehicleCard } from "./VehicleCard";
 
-export function VehicleCatalog({ initialVehicles }: { initialVehicles: Vehicle[] }) {
+export function VehicleCatalog({
+                                   initialVehicles,
+                                   initialTipo = "TODOS"
+                               }: {
+    initialVehicles: Vehicle[];
+    initialTipo?: "TODOS" | "COCHE" | "MOTO";
+}) {
     const [busqueda, setBusqueda] = useState("");
-    const [filtroTipo, setFiltroTipo] = useState<"TODOS" | "COCHE" | "MOTO">("TODOS");
     const [precioMax, setPrecioMax] = useState(150000);
 
     const vehiculosFiltrados = useMemo(() => {
         return initialVehicles.filter(vehiculo => {
             const textoLimpio = busqueda.toLowerCase().trim();
             const coincideTexto = `${vehiculo.marca} ${vehiculo.modelo}`.toLowerCase().includes(textoLimpio);
-            const coincideTipo = filtroTipo === "TODOS" || vehiculo.tipo === filtroTipo;
             const coincidePrecio = vehiculo.precio <= precioMax;
+
+            // Filtra de forma interna según si la página es coches, motos o catálogo general
+            const coincideTipo = initialTipo === "TODOS" || vehiculo.tipo === initialTipo;
 
             return coincideTexto && coincideTipo && coincidePrecio;
         });
-    }, [initialVehicles, busqueda, filtroTipo, precioMax]);
+    }, [initialVehicles, busqueda, precioMax, initialTipo]);
 
     return (
         <div className="space-y-12">
             <FilterBar
                 busqueda={busqueda}
                 setBusqueda={setBusqueda}
-                filtroTipo={filtroTipo}
-                setFiltroTipo={setFiltroTipo}
                 precioMax={precioMax}
                 setPrecioMax={setPrecioMax}
             />
@@ -41,6 +46,7 @@ export function VehicleCatalog({ initialVehicles }: { initialVehicles: Vehicle[]
                     </p>
                 </div>
             ) : (
+                /* El Grid original y robusto de 3 columnas grandes */
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
                     {vehiculosFiltrados.map((v) => (
                         <VehicleCard key={v.id} vehicle={v} />

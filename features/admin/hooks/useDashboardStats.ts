@@ -3,11 +3,13 @@
 import { useState, useEffect } from 'react';
 
 interface DashboardLog {
+    id: string;
     usuario: string;
     accion: string;
     fecha: string;
-    tipoEntidad?: string;
-    detalles?: string;
+    tipoEntidad: string;
+    entidadId: string;
+    detalles: string;
 }
 
 interface DashboardStats {
@@ -34,7 +36,7 @@ export function useDashboardStats() {
                 query {
                     listarVehiculos { precio }
                     listSales { finalPrice }
-                    listarLogs { usuario accion fecha tipoEntidad detalles }
+                    listarLogs { id usuario accion fecha tipoEntidad entidadId detalles }
                 }
             `;
             try {
@@ -51,7 +53,6 @@ export function useDashboardStats() {
                 });
 
                 const { data } = await res.json();
-
                 const vehicles = data?.listarVehiculos || [];
                 const sales = data?.listSales || [];
 
@@ -60,7 +61,7 @@ export function useDashboardStats() {
                     inventoryValue: vehicles.reduce((acc: number, v: { precio: number }) => acc + (v.precio || 0), 0),
                     totalSales: sales.length,
                     salesRevenue: sales.reduce((acc: number, s: { finalPrice: number }) => acc + (s.finalPrice || 0), 0),
-                    recentLogs: (data?.listarLogs || [])
+                    recentLogs: [...(data?.listarLogs || [])].reverse()
                 });
             } catch (e) {
                 console.error("Error cargando el dashboard:", e);

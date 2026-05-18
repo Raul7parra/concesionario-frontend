@@ -15,7 +15,6 @@ export function useSales() {
     const [sales, setSales] = useState<Sale[]>([]);
     const [loading, setLoading] = useState(true);
 
-    // Función auxiliar para obtener las cabeceras con el token
     const getHeaders = () => {
         const token = typeof window !== 'undefined' ? localStorage.getItem('jwt_token') : null;
         return {
@@ -40,11 +39,11 @@ export function useSales() {
             `;
             const response = await fetch('http://localhost:8080/graphql', {
                 method: 'POST',
-                headers: getHeaders(), // <-- Usamos las cabeceras con el token
+                headers: getHeaders(),
                 body: JSON.stringify({ query })
             });
             const { data } = await response.json();
-            if (data?.listSales) setSales(data.listSales);
+            if (data?.listSales) setSales([...data.listSales].reverse());
         } catch (error) {
             console.error("Error cargando ventas:", error);
         } finally {
@@ -61,12 +60,33 @@ export function useSales() {
             `;
             await fetch('http://localhost:8080/graphql', {
                 method: 'POST',
-                headers: getHeaders(), // <-- Usamos las cabeceras con el token
+                headers: getHeaders(),
                 body: JSON.stringify({ query })
             });
             setSales(prev => prev.filter(s => s.id !== id));
         } catch (error) {
             console.error("Error eliminando venta:", error);
+        }
+    };
+
+    const updateSaleStatus = async (id: string, status: string) => {
+        try {
+            const query = `
+                mutation {
+                    updateSaleStatus(id: "${id}", status: "${status}") {
+                        id
+                        status
+                    }
+                }
+            `;
+            await fetch('http://localhost:8080/graphql', {
+                method: 'POST',
+                headers: getHeaders(),
+                body: JSON.stringify({ query })
+            });
+            setSales(prev => prev.map(s => s.id === id ? { ...s, status: status.toUpperCase() } : s));
+        } catch (error) {
+            console.error("Error al actualizar estado de venta:", error);
         }
     };
 
@@ -76,6 +96,5 @@ export function useSales() {
         });
     }, [fetchSalesData]);
 
-
-    return { sales, loading, deleteSale, refresh: fetchSalesData };
+    return { sales, loading, deleteSale, updateSaleStatus, refresh: fetchSalesData };
 }

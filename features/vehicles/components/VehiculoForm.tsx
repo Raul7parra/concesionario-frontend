@@ -14,9 +14,9 @@ const vehicleSchema = z.object({
     precio: z.number().positive("El precio debe ser mayor a 0 €"),
     estado: z.enum(["NUEVO", "OCASION"]),
     tipo: z.enum(["COCHE", "MOTO"]),
-    imagenUrl: z.union([z.string().url("Debe ser una URL válida empezando por http:// o https://"), z.literal("")]),
-    numeroPuertas: z.number().min(2, "Mínimo 2 puertas").max(7, "Máximo 7 puertas").optional(),
-    cilindrada: z.number().positive("La cilindrada debe ser mayor a 0").optional()
+    imagenUrl: z.union([z.string().url("Debe ser una URL válida empezando por http:// o https://"), z.literal("")]).nullish(),
+    numeroPuertas: z.number().nullish(),
+    cilindrada: z.number().nullish()
 });
 
 interface VehicleFormProps {
@@ -31,7 +31,10 @@ export function VehicleForm({ onSuccessAction, initialData, vehicleId }: Vehicle
 
     const [errors, setErrors] = useState<Record<string, string>>({});
 
-    const [formData, setFormData] = useState<VehicleInput>(initialData || {
+    const [formData, setFormData] = useState<VehicleInput>(initialData ? {
+        ...initialData,
+        tipo: (initialData.tipo || "COCHE").toUpperCase()
+    } : {
         marca: "",
         modelo: "",
         anio: new Date().getFullYear(),
@@ -42,6 +45,7 @@ export function VehicleForm({ onSuccessAction, initialData, vehicleId }: Vehicle
         numeroPuertas: 5,
         cilindrada: 0
     });
+
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();

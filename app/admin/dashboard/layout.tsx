@@ -1,10 +1,20 @@
 'use client';
 
+import { useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
     const { logout } = useAuth();
+    const router = useRouter();
+
+    useEffect(() => {
+        const token = localStorage.getItem('jwt_token');
+        if (!token) {
+            router.push('/login');
+        }
+    }, [router]);
 
     return (
         <div className="flex min-h-screen bg-slate-50">

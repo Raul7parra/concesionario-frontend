@@ -3,6 +3,7 @@ import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import { Toaster } from "sonner";
 
+
 export const metadata: Metadata = {
     title: "Concesionario App",
     description: "Catálogo de vehículos premium",

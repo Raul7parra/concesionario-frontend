@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 
 export function Header() {
-    const { user, logout } = useAuth();
+    const { isAuthenticated, logout } = useAuth();
 
     return (
         <header className="bg-gray-900 text-white shadow-md sticky top-0 z-50">
@@ -18,7 +18,15 @@ export function Header() {
                         Catálogo
                     </Link>
 
-                    {user ? (
+                    <Link href="/coches" className="hover:text-blue-400 transition-colors">
+                        Coches
+                    </Link>
+
+                    <Link href="/motos" className="hover:text-blue-400 transition-colors font-medium">
+                        Motos
+                    </Link>
+
+                    {isAuthenticated ? (
                         <div className="flex items-center gap-4 border-l border-gray-700 pl-6">
                             <div className="flex items-center gap-3 bg-gray-800 py-1.5 px-1.5 pr-4 rounded-full border border-gray-700 shadow-sm">
                                 <div className="bg-blue-600 text-white p-1.5 rounded-full">
@@ -27,7 +35,7 @@ export function Header() {
                                     </svg>
                                 </div>
                                 <span className="text-sm font-medium text-gray-200 truncate max-w-[150px]">
-                                    {user.name || user.email.split('@')[0]}
+                                    Administrador
                                 </span>
                             </div>
 
