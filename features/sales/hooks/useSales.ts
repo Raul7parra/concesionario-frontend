@@ -9,6 +9,8 @@ export interface Sale {
     date: string;
     status: string;
     finalPrice: number;
+    email?: string;
+    telefono?: string;
 }
 
 export function useSales() {
@@ -34,6 +36,8 @@ export function useSales() {
                         finalPrice
                         status
                         date
+                        email
+                        telefono
                     }
                 }
             `;

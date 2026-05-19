@@ -42,6 +42,8 @@ export async function getVehicles(): Promise<Vehicle[]> {
                 tipo          
                 numeroPuertas  
                 cilindrada     
+                combustible
+                transmision
             }
         }
     `;
@@ -73,7 +75,7 @@ export async function deleteVehicle(id: string): Promise<boolean> {
     return !!json.data?.eliminarVehiculo;
 }
 
-export async function updateVehicle(id: string, vehicle: VehicleInput): Promise<any> {
+export async function updateVehicle(id: string, vehicle: VehicleInput): Promise<Vehicle> {
     const query = `
         mutation($id: ID!, $input: VehiculoInput!) {
             actualizarVehiculo(id: $id, input: $input) {

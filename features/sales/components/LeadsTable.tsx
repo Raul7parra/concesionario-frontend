@@ -19,6 +19,7 @@ export function LeadsTable({ sales, onDelete, onUpdateStatus }: LeadsTableProps)
                     <thead>
                     <tr className="bg-slate-50/50">
                         <th className="p-6 text-xs font-bold uppercase tracking-widest text-slate-400">Cliente</th>
+                        <th className="p-6 text-xs font-bold uppercase tracking-widest text-slate-400">Contacto</th>
                         <th className="p-6 text-xs font-bold uppercase tracking-widest text-slate-400">Vehículo</th>
                         <th className="p-6 text-xs font-bold uppercase tracking-widest text-slate-400">Precio</th>
                         <th className="p-6 text-xs font-bold uppercase tracking-widest text-slate-400">Estado / Cambiar</th>
@@ -32,6 +33,22 @@ export function LeadsTable({ sales, onDelete, onUpdateStatus }: LeadsTableProps)
                                 <div className="font-bold text-slate-900">{sale.client}</div>
                                 <div className="text-xs text-slate-400">ID: #{sale.id.substring(0, 8)}</div>
                             </td>
+                            <td className="p-6">
+                                {sale.email ? (
+                                    <div>
+                                        <div className="text-xs font-bold text-slate-700 flex items-center gap-1">
+                                            <span>✉️</span> {sale.email}
+                                        </div>
+                                        {sale.telefono && (
+                                            <div className="text-xs font-bold text-slate-500 flex items-center gap-1 mt-1">
+                                                <span>📞</span> {sale.telefono}
+                                            </div>
+                                        )}
+                                    </div>
+                                ) : (
+                                    <span className="text-xs text-slate-300 italic">Sin datos de contacto</span>
+                                )}
+                            </td>
                             <td className="p-6 font-medium text-slate-600">{sale.vehicleModel}</td>
                             <td className="p-6">
                                 <span className="font-black text-slate-900">
@@ -39,7 +56,6 @@ export function LeadsTable({ sales, onDelete, onUpdateStatus }: LeadsTableProps)
                                 </span>
                             </td>
                             <td className="p-6">
-                                {/* Selector de estado tipo Badge premium */}
                                 <div className="relative inline-block">
                                     <select
                                         value={sale.status}
@@ -53,11 +69,11 @@ export function LeadsTable({ sales, onDelete, onUpdateStatus }: LeadsTableProps)
                                         }`}
                                     >
                                         <option value="RESERVADO" className="bg-white text-slate-900 font-bold">RESERVADO</option>
+                                        <option value="PENDIENTE_INFO" className="bg-white text-slate-900 font-bold">PENDIENTE INFO</option>
                                         <option value="COMPLETADO" className="bg-white text-slate-900 font-bold">COMPLETADO</option>
                                         <option value="ENTREGADO" className="bg-white text-slate-900 font-bold">ENTREGADO</option>
                                         <option value="CANCELADO" className="bg-white text-slate-900 font-bold">CANCELADO</option>
                                     </select>
-                                    {/* Flechita estilizada a la derecha del select */}
                                     <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
                                         <svg className="fill-current h-3 w-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                                             <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>

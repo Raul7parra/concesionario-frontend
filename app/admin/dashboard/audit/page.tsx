@@ -1,10 +1,33 @@
 'use client';
 
+import { useMemo } from 'react';
 import { useDashboardStats } from "@/features/admin/hooks/useDashboardStats";
 import { AuditTable } from "@/features/admin/components/AuditTable";
+import { StatsCard } from "@/features/admin/components/StatsCard";
 
 export default function AuditPage() {
     const { stats, loading } = useDashboardStats();
+
+    const auditStats = useMemo(() => {
+        const logs = stats.recentLogs || [];
+        const criticalCount = logs.filter(log =>
+            log.accion.includes('FAILURE') ||
+            log.accion.includes('ELIMINAR') ||
+            log.accion.includes('DELETE')
+        ).length;
+
+        let lastTimeStr = "Sin registros";
+        if (logs.length > 0) {
+            const lastLogDate = new Date(logs[0].fecha);
+            lastTimeStr = lastLogDate.toLocaleDateString() + ' ' + lastLogDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+
+        return {
+            total: logs.length,
+            critical: criticalCount,
+            lastTime: lastTimeStr
+        };
+    }, [stats]);
 
     if (loading) return (
         <div className="p-20 text-center space-y-6">
@@ -30,6 +53,13 @@ export default function AuditPage() {
                     </svg>
                     Imprimir Reporte
                 </button>
+            </div>
+
+            {/* Tarjetas de Estadísticas de Auditoría */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <StatsCard label="Logs Auditados" value={auditStats.total} color="blue" icon="🛡️" />
+                <StatsCard label="Alertas Críticas" value={auditStats.critical} color="rose" icon="🚨" />
+                <StatsCard label="Última Operación" value={auditStats.lastTime} color="indigo" icon="⏱️" />
             </div>
 
             <AuditTable logs={stats.recentLogs} />

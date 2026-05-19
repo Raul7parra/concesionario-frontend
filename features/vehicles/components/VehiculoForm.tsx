@@ -16,7 +16,9 @@ const vehicleSchema = z.object({
     tipo: z.enum(["COCHE", "MOTO"]),
     imagenUrl: z.union([z.string().url("Debe ser una URL válida empezando por http:// o https://"), z.literal("")]).nullish(),
     numeroPuertas: z.number().nullish(),
-    cilindrada: z.number().nullish()
+    cilindrada: z.number().nullish(),
+    combustible: z.string().min(1, "Selecciona un combustible"),
+    transmision: z.string().min(1, "Selecciona una transmisión")
 });
 
 interface VehicleFormProps {
@@ -28,12 +30,13 @@ interface VehicleFormProps {
 export function VehicleForm({ onSuccessAction, initialData, vehicleId }: VehicleFormProps) {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
-
     const [errors, setErrors] = useState<Record<string, string>>({});
 
     const [formData, setFormData] = useState<VehicleInput>(initialData ? {
         ...initialData,
-        tipo: (initialData.tipo || "COCHE").toUpperCase()
+        tipo: (initialData.tipo || "COCHE").toUpperCase(),
+        combustible: initialData.combustible || "GASOLINA",
+        transmision: initialData.transmision || "MANUAL"
     } : {
         marca: "",
         modelo: "",
@@ -43,9 +46,10 @@ export function VehicleForm({ onSuccessAction, initialData, vehicleId }: Vehicle
         tipo: "COCHE",
         imagenUrl: "",
         numeroPuertas: 5,
-        cilindrada: 0
+        cilindrada: 0,
+        combustible: "GASOLINA",
+        transmision: "MANUAL"
     });
-
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -67,17 +71,19 @@ export function VehicleForm({ onSuccessAction, initialData, vehicleId }: Vehicle
         try {
             if (vehicleId) {
                 await updateVehicle(vehicleId, formData);
-                toast.success("Vehículo actualizado correctamente"); // <-- Aviso de éxito
+                toast.success("Vehículo actualizado correctamente");
             } else {
                 await createVehicle(formData);
-                toast.success("Nuevo vehículo registrado con éxito"); // <-- Aviso de éxito
+                toast.success("Nuevo vehículo registrado con éxito");
             }
             router.refresh();
             if (onSuccessAction) onSuccessAction();
 
         } catch (error) {
             console.error("Error al guardar el vehículo:", error);
-            toast.error("Error de conexión con el servidor"); // <-- Aviso de error
+            toast.error("Error de conexión con el servidor");
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -159,6 +165,35 @@ export function VehicleForm({ onSuccessAction, initialData, vehicleId }: Vehicle
                         <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">€</span>
                     </div>
                     {errors.precio && <p className="text-rose-500 text-[10px] uppercase font-bold mt-1 tracking-wider">{errors.precio}</p>}
+                </div>
+
+                {/* Combustible y Transmisión */}
+                <div>
+                    <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Combustible</label>
+                    <select
+                        name="combustible"
+                        value={formData.combustible}
+                        onChange={handleChange}
+                        className="w-full bg-slate-50 border border-slate-200 text-slate-900 rounded-xl px-4 py-3 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-bold"
+                    >
+                        <option value="GASOLINA">⛽ Gasolina</option>
+                        <option value="DIESEL">🛢️ Diésel</option>
+                        <option value="HIBRIDO">🔋 Híbrido</option>
+                        <option value="ELECTRICO">⚡ Eléctrico</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Transmisión</label>
+                    <select
+                        name="transmision"
+                        value={formData.transmision}
+                        onChange={handleChange}
+                        className="w-full bg-slate-50 border border-slate-200 text-slate-900 rounded-xl px-4 py-3 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all font-bold"
+                    >
+                        <option value="MANUAL">⚙️ Manual</option>
+                        <option value="AUTOMATICO">🕹️ Automático</option>
+                    </select>
                 </div>
 
                 {/* Campos específicos */}

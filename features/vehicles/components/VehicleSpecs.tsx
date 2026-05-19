@@ -5,11 +5,29 @@ import { Vehicle } from "../types";
 export function VehicleSpecs({ vehicle }: { vehicle: Vehicle }) {
     const tipoNormalizado = vehicle.tipo?.toUpperCase() || 'COCHE';
 
+    const combustibleLabel = (vehicle.combustible || 'GASOLINA').toUpperCase();
+    const transmisionLabel = (vehicle.transmision || 'MANUAL').toUpperCase();
+
+    const combustibleIconMap: Record<string, string> = {
+        GASOLINA: '⛽ Gasolina',
+        DIESEL: '🛢️ Diésel',
+        HIBRIDO: '🔋 Híbrido',
+        ELECTRICO: '⚡ Eléctrico'
+    };
+
     const specs = [
         { label: 'Año', value: vehicle.anio || '2024', icon: '📅' },
         { label: 'Tipo', value: vehicle.tipo || 'Coche', icon: '🏎️' },
-        { label: 'Transmisión', value: 'Manual', icon: '⚙️' },
-        { label: 'Combustible', value: 'Gasolina', icon: '⛽' },
+        {
+            label: 'Transmisión',
+            value: transmisionLabel === 'AUTOMATICO' ? 'Automático' : 'Manual',
+            icon: '⚙️'
+        },
+        {
+            label: 'Combustible',
+            value: combustibleIconMap[combustibleLabel] || 'Gasolina',
+            icon: '⛽'
+        },
         {
             label: tipoNormalizado === 'COCHE' ? 'Puertas' : 'Cilindrada',
             value: tipoNormalizado === 'COCHE'

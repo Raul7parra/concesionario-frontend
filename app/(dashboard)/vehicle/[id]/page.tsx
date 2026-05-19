@@ -7,6 +7,7 @@ import { VehicleGallery } from '@/features/vehicles/components/VehicleGallery';
 import { VehicleSpecs } from '@/features/vehicles/components/VehicleSpecs';
 import { VehicleActions } from '@/features/vehicles/components/VehicleActions';
 import { VehicleCard } from '@/features/vehicles/components/VehicleCard';
+import { FinancingSimulator } from '@/features/vehicles/components/FinancingSimulator';
 
 export default function VehicleDetailsPage() {
     const { id } = useParams();
@@ -18,7 +19,22 @@ export default function VehicleDetailsPage() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const queryVehi = `query Buscar($id: ID!) { buscarVehiculo(id: $id) { id marca modelo anio precio estado imagenUrl tipo numeroPuertas cilindrada } }`;
+                const queryVehi = `query Buscar($id: ID!) { 
+                    buscarVehiculo(id: $id) { 
+                        id 
+                        marca 
+                        modelo 
+                        anio 
+                        precio 
+                        estado 
+                        imagenUrl 
+                        tipo 
+                        numeroPuertas 
+                        cilindrada 
+                        combustible
+                        transmision
+                    } 
+                }`;
                 const resVehi = await fetch('http://localhost:8080/graphql', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -28,7 +44,22 @@ export default function VehicleDetailsPage() {
                 const currentVehicle = jsonVehi.data?.buscarVehiculo;
                 setVehicle(currentVehicle);
 
-                const queryAll = `query { listarVehiculos { id marca modelo anio precio estado imagenUrl tipo numeroPuertas cilindrada } }`;
+                const queryAll = `query { 
+                    listarVehiculos { 
+                        id 
+                        marca 
+                        modelo 
+                        anio 
+                        precio 
+                        estado 
+                        imagenUrl 
+                        tipo 
+                        numeroPuertas 
+                        cilindrada 
+                        combustible
+                        transmision
+                    } 
+                }`;
                 const resAll = await fetch('http://localhost:8080/graphql', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -40,8 +71,8 @@ export default function VehicleDetailsPage() {
                     .slice(0, 3);
                 setSimilares(others);
 
-            } catch (error) {
-                console.error(error);
+            } catch (error: any) {
+                console.error("Error al cargar la ficha:", error);
             } finally {
                 setLoading(false);
             }
@@ -56,7 +87,9 @@ export default function VehicleDetailsPage() {
         </div>
     );
 
-    if (!vehicle) return <div className="p-20 text-center font-black">Vehículo no encontrado</div>;
+    if (!vehicle) return (
+        <div className="p-20 text-center font-black">Vehículo no encontrado</div>
+    );
 
     return (
         <div className="min-h-screen bg-white animate-in fade-in duration-1000">
@@ -93,7 +126,7 @@ export default function VehicleDetailsPage() {
 
                         <VehicleSpecs vehicle={vehicle} />
 
-                        <div className="mb-12 p-8 bg-slate-50 rounded-[2.5rem] border border-slate-100 relative overflow-hidden">
+                        <div className="mb-8 p-8 bg-slate-50 rounded-[2.5rem] border border-slate-100 relative overflow-hidden">
                             <div className="absolute -right-4 -bottom-4 opacity-5 text-8xl italic font-black text-slate-900">INFO</div>
                             <h4 className="text-slate-900 font-black uppercase tracking-widest text-[10px] mb-4">Garantía AutoPremium</h4>
                             <p className="text-slate-500 font-medium leading-relaxed text-sm">
@@ -101,6 +134,8 @@ export default function VehicleDetailsPage() {
                                 Incluye garantía oficial de 24 meses y mantenimiento gratuito el primer año.
                             </p>
                         </div>
+
+                        <FinancingSimulator vehicle={vehicle} />
 
                         <VehicleActions vehicle={vehicle} />
                     </div>

@@ -9,6 +9,8 @@ export interface Vehicle {
     tipo: string;
     numeroPuertas?: number;
     cilindrada?: number;
+    combustible?: string;
+    transmision?: string;
 }
 
 export interface VehicleInput {
@@ -21,4 +23,6 @@ export interface VehicleInput {
     imagenUrl?: string;
     numeroPuertas?: number;
     cilindrada?: number;
+    combustible?: string;
+    transmision?: string;
 }
