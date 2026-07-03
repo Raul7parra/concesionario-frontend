@@ -1,7 +1,7 @@
 import { AddVehicleModal } from "@/features/vehicles/components/AddVehicleModal";
-import { VehicleTable } from "@/features/admin/components/VehicleTable";
+import { VehicleTable } from "@/features/admin/components/vehicles/VehicleTable";
 import { getVehicles } from "@/features/vehicles/hooks/useVehicle";
-import { StatsCard } from "@/features/admin/components/StatsCard";
+import { StatsCard } from "@/features/admin/components/dashboard/StatsCard";
 
 export const dynamic = "force-dynamic";
 

@@ -2,8 +2,8 @@
 
 import { useMemo } from 'react';
 import { useDashboardStats } from "@/features/admin/hooks/useDashboardStats";
-import { AuditTable } from "@/features/admin/components/AuditTable";
-import { StatsCard } from "@/features/admin/components/StatsCard";
+import { AuditTable } from "@/features/admin/components/audit/AuditTable";
+import { StatsCard } from "@/features/admin/components/dashboard/StatsCard";
 
 export default function AuditPage() {
     const { stats, loading } = useDashboardStats();

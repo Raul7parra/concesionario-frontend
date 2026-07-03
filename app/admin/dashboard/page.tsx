@@ -1,8 +1,8 @@
 'use client';
 
 import { useDashboardStats } from "@/features/admin/hooks/useDashboardStats";
-import { StatsCard } from "@/features/admin/components/StatsCard";
-import { ActivityChart } from "@/features/admin/components/ActivityChart";
+import { StatsCard } from "@/features/admin/components/dashboard/StatsCard";
+import { ActivityChart } from "@/features/admin/components/dashboard/ActivityChart";
 
 export default function AdminDashboard() {
     const { stats, loading } = useDashboardStats();

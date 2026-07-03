@@ -46,6 +46,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     <Link href="/admin/dashboard/audit" className="flex items-center gap-4 hover:bg-blue-600/10 hover:text-blue-400 px-5 py-4 rounded-2xl transition-all duration-300 group font-bold text-sm">
                         <span className="group-hover:scale-125 transition-transform text-lg">🔍</span> Auditoría
                     </Link>
+
+                    {/* clientes */}
+                    <Link href="/admin/dashboard/clients" className="flex items-center gap-4 hover:bg-blue-600/10 hover:text-blue-400 px-5 py-4 rounded-2xl transition-all duration-300 group font-bold text-sm">
+                        <span className="group-hover:scale-125 transition-transform text-lg">🤝</span> Clientes
+                    </Link>
+
+                    {/* personal */}
+                    <Link href="/admin/dashboard/staff" className="flex items-center gap-4 hover:bg-blue-600/10 hover:text-blue-400 px-5 py-4 rounded-2xl transition-all duration-300 group font-bold text-sm">
+                        <span className="group-hover:scale-125 transition-transform text-lg">👥</span> Personal
+                    </Link>
                 </nav>
 
                 <div className="border-t border-slate-800 pt-6 mt-auto flex flex-col gap-2">
@@ -53,7 +63,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                         <span className="text-base">⬅️</span> Salir a la tienda
                     </Link>
 
-                    {/* cerrar sesion */}
                     <button
                         onClick={logout}
                         className="flex items-center gap-4 text-rose-500 hover:text-rose-400 hover:bg-rose-500/10 px-5 py-4 rounded-2xl transition-all duration-300 font-bold text-xs uppercase tracking-widest text-left"
